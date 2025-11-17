@@ -45,7 +45,17 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
+CAN_FilterTypeDef filter_config = {
+    .FilterIdHigh = 0x0000,
+    .FilterIdLow = 0x0000,
+    .FilterMaskIdHigh = 0x0000,
+    .FilterMaskIdLow = 0x0000,
+    .FilterFIFOAssignment = CAN_FILTER_FIFO0,
+    .FilterBank = 0,
+    .FilterMode = CAN_FILTERMODE_IDMASK,
+    .FilterScale = CAN_FILTERSCALE_32BIT,
+    .FilterActivation = ENABLE
+};
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -89,6 +99,7 @@ int main(void) {
     MX_GPIO_Init();
     MX_CAN1_Init();
     /* USER CODE BEGIN 2 */
+    HAL_CAN_ConfigFilter(&hcan1, &filter_config);
     HAL_CAN_Start(&hcan1);
     HAL_CAN_ActivateNotification(&hcan1,CAN_IT_RX_FIFO0_MSG_PENDING); //激活CAN接收中断
 

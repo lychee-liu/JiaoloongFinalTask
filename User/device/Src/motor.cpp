@@ -2,6 +2,7 @@
 #include <cmath>
 #include "../../Core/Inc/can.h"
 //#include "algorithm.h"
+#include <string.h>
 
 
 void M6020_Motor::canRxMsgCallback(const uint8_t rx_data[8]) {
@@ -80,8 +81,8 @@ float M6020_Motor::FeedforwardIntensityCalc(float current_angle) {
 }
 
 M6020_Motor Motor_yaw(1,
-                      PID(0.006, 0, 0, 0, 1.5, 0.2),
-                      PID(10, 0, 5, 0, 400, 0.05),
+                      PID(0.04, 0.003, 0.03, 0.177, 0.6, 0.2),
+                      PID(1, 0, 0.1, 0, 100, 0.05),
                       M6020_Motor::POSITION_SPEED);
 M6020_Motor Motor_pitch(1,
                         PID(0.006, 0, 0, 0, 1.5, 0.2),
@@ -89,16 +90,21 @@ M6020_Motor Motor_pitch(1,
                         M6020_Motor::TORQUE);
 
 uint8_t rx_data[8];
+uint8_t yaw_rx_data[8];
+uint8_t pitch_rx_data[8];
+
 CAN_RxHeaderTypeDef rx_header;
 
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef* hcan) {
     if (hcan->Instance == CAN1) {
         HAL_CAN_GetRxMessage(&hcan1,CAN_RX_FIFO0, &rx_header, rx_data);
         if (rx_header.StdId == 0x205) {
-            Motor_yaw.canRxMsgCallback(rx_data);
+            memcpy(yaw_rx_data, rx_data, sizeof(rx_data));
+            Motor_yaw.canRxMsgCallback(yaw_rx_data);
         }
         if (rx_header.StdId == 0x208) {
-            Motor_pitch.canRxMsgCallback(rx_data);
+            memcpy(pitch_rx_data, rx_data, sizeof(rx_data));
+            Motor_pitch.canRxMsgCallback(pitch_rx_data);
         }
     }
 }

@@ -25,6 +25,8 @@ int16_t pitch_intensity = 0;
 
 [[noreturn]] void motor_task(void*) {
     while (true) {
+        const auto tick = osKernelGetTickCount();
+
         yaw_intensity = Motor_yaw.handle();
         tx_data[0] = (uint8_t)(yaw_intensity >> 8);
         tx_data[1] = (uint8_t)(yaw_intensity & 0xFF);
@@ -35,6 +37,7 @@ int16_t pitch_intensity = 0;
             HAL_CAN_AddTxMessage(&hcan1, &tx_header, stop_data, &can_tx_mail_box_);
         else
             HAL_CAN_AddTxMessage(&hcan1, &tx_header, tx_data, &can_tx_mail_box_);
+        osDelayUntil(tick + 1);
     }
 }
 
