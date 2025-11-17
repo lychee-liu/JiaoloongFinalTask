@@ -5,7 +5,7 @@
 #include "../../algorithm/Inc/pid.h"
 #include "../../algorithm/Inc/mymath.h"
 
-class M2006_Motor {
+class M6020_Motor {
 public:
     enum ControlMethod {
         TORQUE,
@@ -13,7 +13,7 @@ public:
         POSITION_SPEED
     };
 
-    explicit M2006_Motor(const float ratio, PID spid, PID ppid, ControlMethod control_method = TORQUE):
+    explicit M6020_Motor(const float ratio, PID spid, PID ppid, ControlMethod control_method = TORQUE):
         ratio_(ratio),
         spid_(spid),
         ppid_(ppid),
