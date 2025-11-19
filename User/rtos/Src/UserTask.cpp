@@ -30,6 +30,7 @@ int16_t pitch_intensity = 0;
         yaw_intensity = Motor_yaw.handle();
         tx_data[0] = (uint8_t)(yaw_intensity >> 8);
         tx_data[1] = (uint8_t)(yaw_intensity & 0xFF);
+        Motor_pitch.FeedforwardIntensityCalc();
         pitch_intensity = Motor_pitch.handle();
         tx_data[6] = (uint8_t)(pitch_intensity >> 8);
         tx_data[7] = (uint8_t)(pitch_intensity & 0xFF);

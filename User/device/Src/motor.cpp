@@ -56,11 +56,11 @@ int16_t M6020_Motor::handle() {
         case TORQUE:
             break;
         case SPEED:
-            FeedforwardIntensityCalc(angle_);
+            //FeedforwardIntensityCalc(angle_);
             output_intensity_ = spid_.calc(target_speed_, fdb_speed_) + feedforward_intensity_;
             break;
         case POSITION_SPEED:
-            FeedforwardIntensityCalc(angle_);
+            //FeedforwardIntensityCalc(angle_);
             target_speed_ = ppid_.calc(target_angle_, fdb_angle_) + feedforward_speed_;
             output_intensity_ = spid_.calc(target_speed_, fdb_speed_) + feedforward_intensity_;
             break;
@@ -75,9 +75,22 @@ int16_t M6020_Motor::handle() {
     return intensity;
 }
 
-float M6020_Motor::FeedforwardIntensityCalc(float current_angle) {
-    //feedforward_intensity_ = 0.5 * 9.8 * 0.05524 * sinf(current_angle * 3.14 / 180.0) / 0.3f;
-    return 0;
+#include <algorithm>
+
+float M6020_Motor::FeedforwardIntensityCalc() {
+    const float angles[6] = { 100.0f, 95.0f, 90.0f, 80.0f, 70.0f, 60.0f };
+    const float currents[6] = { -0.65f, -0.6f, -0.45f, -0.33f, -0.25f, -0.15f };
+
+    float angle = std::max(60.0f, std::min(100.0f, target_angle_));
+    for (int i = 0; i < 5; ++i) {
+        if (angles[i + 1] <= angle && angle <= angles[i]) {
+            feedforward_intensity_ = currents[i] + (angle - angles[i]) * (currents[i + 1] - currents[i]) / (angles[i +
+                1] - angles[i]);
+            return feedforward_intensity_;
+        }
+    }
+    feedforward_intensity_ = currents[5];
+    return feedforward_intensity_;
 }
 
 M6020_Motor Motor_yaw(1,

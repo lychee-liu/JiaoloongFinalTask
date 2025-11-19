@@ -51,7 +51,7 @@ public:
     void SetSpeed(float target_speed, float feedforward_intensity = 0);
     void SetIntensity(float intensity);
     int16_t handle(void);
-    float FeedforwardIntensityCalc(float current_angle);
+    float FeedforwardIntensityCalc();
 
 private:
     const float ratio_;
