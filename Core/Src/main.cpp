@@ -20,9 +20,13 @@
 #include "main.h"
 #include "cmsis_os.h"
 #include "can.h"
+#include "dma.h"
 #include "spi.h"
+#include "usart.h"
 #include "gpio.h"
 #include "bmi088.h"
+#include "RC.h"
+#include "UserTask.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -58,12 +62,22 @@ CAN_FilterTypeDef filter_config = {
     .FilterActivation = ENABLE
 };
 
+extern RemoteControl my_rc;
 
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
-void MX_FREERTOS_Init(void);
+#ifdef __cplusplus
+extern "C" {
+    #endif
+
+    // 声明 C 函数
+    void MX_FREERTOS_Init(void);
+
+    #ifdef __cplusplus
+}
+#endif
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -100,13 +114,16 @@ int main(void) {
 
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
+    MX_DMA_Init();
     MX_CAN1_Init();
     MX_SPI1_Init();
+    MX_USART3_UART_Init();
     /* USER CODE BEGIN 2 */
     HAL_CAN_ConfigFilter(&hcan1, &filter_config);
     HAL_CAN_Start(&hcan1);
     HAL_CAN_ActivateNotification(&hcan1,CAN_IT_RX_FIFO0_MSG_PENDING); //激活CAN接收中断
     bmi088_init();
+		my_rc.init();
     /* USER CODE END 2 */
 
     /* Init scheduler */

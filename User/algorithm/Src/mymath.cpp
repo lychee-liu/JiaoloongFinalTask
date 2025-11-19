@@ -1,4 +1,5 @@
 #include <cstdint>
+#include "mymath.h"
 //
 // Created by lychee on 2025/11/17.
 //

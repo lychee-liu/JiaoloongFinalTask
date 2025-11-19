@@ -8,6 +8,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+	#include "usart.h"
 void user_tasks_init();
 
 #ifdef __cplusplus

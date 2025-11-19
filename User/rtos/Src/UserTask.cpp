@@ -6,6 +6,7 @@
 #include "cmsis_os2.h"
 #include "can.h"
 #include "imu.h"
+#include "RC.h"
 
 uint8_t tx_data[8];
 uint8_t stop_data[8] = { 0 };
@@ -67,10 +68,65 @@ osThreadId_t imu_task_handle;
 constexpr osThreadAttr_t imu_task_attributes = {
     .name = "imu_task",
     .stack_size = 128 * 4,
-    .priority = (osPriorityNormal),
+    .priority = (osPriorityLow),
+};
+
+RemoteControl my_rc;
+
+[[noreturn]] void rc_task(void*) {
+    while (true) {
+        const auto tick = osKernelGetTickCount();
+        my_rc.handle();
+        osDelayUntil(tick + 1);
+    }
+}
+
+osThreadId_t rc_task_handle;
+constexpr osThreadAttr_t rc_task_attributes = {
+    .name = "rc_task",
+    .stack_size = 128 * 4,
+    .priority = (osPriorityHigh),
+};
+
+void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef* huart, uint16_t Size) {
+    if (huart == &huart3) {
+        my_rc.uartRxCallback(Size);
+    }
+		
+}
+
+float pitch_target,yaw_target;
+[[noreturn]] void control_task(void*) {
+    while (true) {
+        const auto tick = osKernelGetTickCount();
+
+        switch (my_rc.s2) {
+            case RemoteControl::DOWN:
+                HAL_CAN_AddTxMessage(&hcan1, &tx_header, stop_data, &can_tx_mail_box_);
+                break;
+            case RemoteControl::UP:
+                pitch_target = 80.0f + 20.0f * my_rc.ch1;
+                yaw_target = 0.0f - 180.0f * my_rc.ch0;
+                Motor_pitch.SetPosition(pitch_target,0,0);
+                Motor_yaw.SetPosition(yaw_target,0,0);
+default:
+break;
+        }
+        osDelayUntil(tick + 1);
+    }
+}
+
+osThreadId_t control_task_handle;
+constexpr osThreadAttr_t control_task_attributes = {
+    .name = "control_task",
+    .stack_size = 128 * 4,
+    .priority = (osPriorityHigh),
 };
 
 void user_tasks_init() {
     motor_task_handle = osThreadNew(motor_task, nullptr, &motor_task_attributes);
     imu_task_handle = osThreadNew(imu_task, nullptr, &imu_task_attributes);
+	 
+    rc_task_handle = osThreadNew(rc_task, nullptr, &rc_task_attributes);
+    control_task_handle = osThreadNew(control_task, nullptr, &rc_task_attributes);
 }
