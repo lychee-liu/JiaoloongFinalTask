@@ -40,7 +40,11 @@ add_executable(${CMAKE_PROJECT_NAME}
         User/rtos/Src/UserTask.cpp
         User/device/Inc/btn.h
         User/algorithm/Src/mymath.cpp
-        User/algorithm/Inc/mymath.h)
+        User/algorithm/Inc/mymath.h
+        User/device/Inc/imu.h
+        User/device/Src/imu.cpp
+        User/module/Inc/bmi088.h
+        User/module/Src/bmi088.cpp)
 
 # Add STM32CubeMX generated sources
 add_subdirectory(cmake/stm32cubemx)

@@ -20,8 +20,9 @@
 #include "main.h"
 #include "cmsis_os.h"
 #include "can.h"
+#include "spi.h"
 #include "gpio.h"
-
+#include "bmi088.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -56,6 +57,8 @@ CAN_FilterTypeDef filter_config = {
     .FilterScale = CAN_FILTERSCALE_32BIT,
     .FilterActivation = ENABLE
 };
+
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -98,11 +101,12 @@ int main(void) {
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
     MX_CAN1_Init();
+    MX_SPI1_Init();
     /* USER CODE BEGIN 2 */
     HAL_CAN_ConfigFilter(&hcan1, &filter_config);
     HAL_CAN_Start(&hcan1);
     HAL_CAN_ActivateNotification(&hcan1,CAN_IT_RX_FIFO0_MSG_PENDING); //激活CAN接收中断
-
+    bmi088_init();
     /* USER CODE END 2 */
 
     /* Init scheduler */

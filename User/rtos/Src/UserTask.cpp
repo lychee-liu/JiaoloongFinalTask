@@ -5,6 +5,7 @@
 #include "../../device/Inc/motor.h"
 #include "cmsis_os2.h"
 #include "can.h"
+#include "imu.h"
 
 uint8_t tx_data[8];
 uint8_t stop_data[8] = { 0 };
@@ -49,6 +50,27 @@ constexpr osThreadAttr_t motor_task_attributes = {
     .priority = (osPriorityNormal),
 };
 
+float R_imu[3][3] = { { 1, 0, 0 }, { 0, 1, 0 }, { 0, 0, 1 } };
+float gyro_bias[3] = { 0, 0, 0 };
+IMU my_imu(0.001f, 0.5f, 0.5f, R_imu, gyro_bias);
+
+[[noreturn]] void imu_task(void*) {
+    while (true) {
+        const auto tick = osKernelGetTickCount();
+        my_imu.readSensor();
+        my_imu.update();
+        osDelayUntil(tick + 1);
+    }
+}
+
+osThreadId_t imu_task_handle;
+constexpr osThreadAttr_t imu_task_attributes = {
+    .name = "imu_task",
+    .stack_size = 128 * 4,
+    .priority = (osPriorityNormal),
+};
+
 void user_tasks_init() {
     motor_task_handle = osThreadNew(motor_task, nullptr, &motor_task_attributes);
+    imu_task_handle = osThreadNew(imu_task, nullptr, &imu_task_attributes);
 }
