@@ -26,6 +26,7 @@
 #include "gpio.h"
 #include "bmi088.h"
 #include "RC.h"
+#include "iwdg.h"
 #include "UserTask.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -118,6 +119,8 @@ int main(void) {
     MX_CAN1_Init();
     MX_SPI1_Init();
     MX_USART3_UART_Init();
+    MX_IWDG_Init();
+
     /* USER CODE BEGIN 2 */
     HAL_CAN_ConfigFilter(&hcan1, &filter_config);
     HAL_CAN_Start(&hcan1);

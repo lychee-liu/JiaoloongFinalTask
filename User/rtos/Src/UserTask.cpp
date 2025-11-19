@@ -7,6 +7,7 @@
 #include "can.h"
 #include "imu.h"
 #include "RC.h"
+#include "iwdg.h"
 
 uint8_t tx_data[8];
 uint8_t stop_data[8] = { 0 };
@@ -40,6 +41,7 @@ int16_t pitch_intensity = 0;
             HAL_CAN_AddTxMessage(&hcan1, &tx_header, stop_data, &can_tx_mail_box_);
         else
             HAL_CAN_AddTxMessage(&hcan1, &tx_header, tx_data, &can_tx_mail_box_);
+        HAL_IWDG_Refresh(&hiwdg);
         osDelayUntil(tick + 1);
     }
 }
